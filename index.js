@@ -86,13 +86,16 @@ function renderGraph(rawData) {
     .data(gdpData)
     .enter()
     .append('rect')
-    .classed('bar', true)
-    .attr('x', (d, i) => i * 10)
-    .attr('width', 10)
-    .attr('class', 'graph-bar')
-    .attr('height', 100)
+    .attr('x', (d, i) => {
+      console.log(d, i, xscale(parseInt(d[0].slice(0, 4)) + 0.25 * (i % 4)));
+      return xscale(parseInt(d[0].slice(0, 4)) + 0.25 * (i % 4));
+    })
+    .attr('y', (d) => yscale(d[1]))
+    .attr('width', (w - 2 * padding) / gdpData.length)
+    .attr('height', (d) => yscale(gdpMax - d[1]))
     .attr('fill', 'black')
-    .attr('stroke', 'white');
+    .attr('stroke', 'white')
+    .attr('stroke-width', 1);
 }
 
 // Request graph data after DOM loads
