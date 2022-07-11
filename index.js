@@ -35,6 +35,10 @@ function transferFailed(
   console.error(message);
 }
 
+function calculateXPos(d, i, xscale) {
+  return xscale(parseInt(d[0].slice(0, 4)) + 0.25 * (i % 4));
+}
+
 function renderGraph(rawData) {
   const graphContainer = d3.select('#graph-container');
   graphContainer.text(''); // Remove 'Loading...' message
@@ -50,7 +54,10 @@ function renderGraph(rawData) {
     return;
   }
 
-  graphContainer.append('h1').text('US Quarterly GDP 1947-2015');
+  graphContainer
+    .append('h1')
+    .attr('id', 'title')
+    .text('US Quarterly GDP 1947-2015');
 
   console.log(graphContainer.node().getBoundingClientRect()); // Get element width and height
 
@@ -86,16 +93,58 @@ function renderGraph(rawData) {
     .data(gdpData)
     .enter()
     .append('rect')
-    .attr('x', (d, i) => {
-      console.log(d, i, xscale(parseInt(d[0].slice(0, 4)) + 0.25 * (i % 4)));
-      return xscale(parseInt(d[0].slice(0, 4)) + 0.25 * (i % 4));
-    })
-    .attr('y', (d) => yscale(d[1]))
+    .attr('class', 'bar')
+    .attr('data-date', (d) => d[0])
+    .attr('data-gdp', (d) => d[1])
+    .attr('data-index', (d, i) => i)
+    .attr('x', (d, i) => calculateXPos(d, i, xscale))
+    .attr('y', (d) => yscale(d[1]) - padding)
     .attr('width', (w - 2 * padding) / gdpData.length)
     .attr('height', (d) => yscale(gdpMax - d[1]))
-    .attr('fill', 'black')
+    .attr('fill', 'green')
     .attr('stroke', 'white')
     .attr('stroke-width', 1);
+
+  // Add hover mouseover tool-tip display to the bars
+  const tooltip = graphContainer
+    .append('div')
+    .style('position', 'absolute')
+    .style('visibility', 'hidden')
+    .attr('id', 'tooltip');
+
+  graphSVG
+    .selectAll('rect')
+    .data(gdpData)
+    .on('mouseover', function (event, d) {
+      // mouseover event takes in the mouse event and the data for the
+      console.log('Arg1: ', event);
+      console.log('Arg2: ', d);
+      console.log('Arg2: ', event.clientX);
+      console.log('this: ', this);
+      tooltip
+        .html('')
+        .attr('data-date', d[0])
+        .attr('data-gdp', d[1])
+        .style('visibility', 'visible')
+        .style('top', event.layerY - 20 + 'px');
+
+      // Position tooltip to the left or right of the cursor depending on position
+      const i = parseInt(this.getAttribute('data-index'));
+      if (i < gdpData.length / 2) {
+        tooltip.style('left', event.layerX + 20 + 'px');
+      } else {
+        tooltip.style('left', event.layerX - 150 + 'px');
+      }
+
+      // Add Year and Quarter info to Tooltip
+      tooltip.append('h5').text(`Q${(i % 4) + 1} ${d[0].slice(0, 4)}`);
+
+      // Add GDP Data to Tooltip
+      tooltip.append('h5').text(`$${Math.round(d[1])} Billion`);
+    })
+    .on('mouseout', function () {
+      tooltip.style('visibility', 'hidden');
+    });
 }
 
 // Request graph data after DOM loads
