@@ -87,7 +87,7 @@ function renderGraph(rawData) {
     .domain([0, gdpMax])
     .range([h - padding, 0]);
 
-  //Add axes to the chart:
+  // Add axes to the chart:
   const xAxis = d3.axisBottom(xscale).tickFormat((x) => x.toString());
   graphSVG
     .append('g')
@@ -101,6 +101,20 @@ function renderGraph(rawData) {
     .attr('transform', 'translate(' + padding + ', 0)')
     .attr('id', 'y-axis')
     .call(yAxis);
+
+  // Add axis labels
+  graphSVG
+    .append('text')
+    .attr('transform', 'rotate(-90)')
+    .text('GDP ( Billions of Dollars - Seasonally Adjusted)')
+    .attr('x', -yscale(0) + h / 6)
+    .attr('y', 30);
+
+  graphSVG
+    .append('text')
+    .text('Fiscal Quarter')
+    .attr('x', w / 2)
+    .attr('y', h - 40);
 
   // Add data bars to the chart
   graphSVG
