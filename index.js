@@ -20,8 +20,20 @@ function dataLoaded(e, backup) {
       'Error when trying to load data from API and file, please try again.'
     );
   } else {
-    // Data loaded, render graph
-    renderGraph(this.responseText);
+    // Data loaded, render graph and set up event listener to re-render on window resize
+    const { width } = d3
+      .select('#graph-container')
+      .node()
+      .getBoundingClientRect();
+    renderGraph(this.responseText, width);
+    window.addEventListener('resize', (e) => {
+      console.log('WINDOW RESIZED: ', window);
+      const { width } = d3
+        .select('#graph-container')
+        .node()
+        .getBoundingClientRect();
+      renderGraph(this.responseText, width);
+    });
   }
 }
 
@@ -39,9 +51,10 @@ function calculateXPos(d, i, xscale) {
   return xscale(parseInt(d[0].slice(0, 4)) + 0.25 * (i % 4));
 }
 
-function renderGraph(rawData) {
+// Main function to build interactive graph
+function renderGraph(rawData, width) {
   const graphContainer = d3.select('#graph-container');
-  graphContainer.text(''); // Remove 'Loading...' message
+  graphContainer.html(''); // Remove 'Loading...' message or any previous graph svg
 
   let dataObj;
   try {
@@ -59,17 +72,21 @@ function renderGraph(rawData) {
     .attr('id', 'title')
     .text('US Quarterly GDP 1947-2015');
 
-  console.log(graphContainer.node().getBoundingClientRect()); // Get element width and height
-
-  const w = 1000;
-  const h = 600;
+  width = Math.max(width, 936);
+  const height = 0.6 * width;
   const padding = 80;
 
   const graphSVG = graphContainer
     .append('svg')
     .attr('class', 'graph')
-    .attr('width', w)
-    .attr('height', h);
+    .attr('width', width)
+    .attr('height', height);
+
+  graphContainer.append('label').html(
+    `Data source: <a href= http://research.stlouisfed.org/fred2/data/GDP.txt> Federal Reserve Economic Data</a>
+    <br>
+    For more information see <a href= http://www.bea.gov/national/pdf/nipaguid.pdf> here </a>`
+  );
 
   // Create scales for x and y axes of graph:
   const gdpData = dataObj.data;
@@ -81,17 +98,17 @@ function renderGraph(rawData) {
   const xscale = d3
     .scaleLinear()
     .domain([yearMin, yearMax])
-    .range([padding, w]);
+    .range([padding, width - padding]);
   const yscale = d3
     .scaleLinear()
     .domain([0, gdpMax])
-    .range([h - padding, 0]);
+    .range([height - padding, 0]);
 
   // Add axes to the chart:
   const xAxis = d3.axisBottom(xscale).tickFormat((x) => x.toString());
   graphSVG
     .append('g')
-    .attr('transform', 'translate(0, ' + (h - padding) + ')')
+    .attr('transform', 'translate(0, ' + (height - padding) + ')')
     .attr('id', 'x-axis')
     .call(xAxis);
 
@@ -107,14 +124,16 @@ function renderGraph(rawData) {
     .append('text')
     .attr('transform', 'rotate(-90)')
     .text('GDP ( Billions of Dollars - Seasonally Adjusted)')
-    .attr('x', -yscale(0) + h / 6)
-    .attr('y', 30);
+    .attr('x', -yscale(0) + height / 6)
+    .attr('y', 30)
+    .style('font-size', Math.round(0.015 * width) + 'px');
 
   graphSVG
     .append('text')
+    .style('font-size', Math.round(0.015 * width) + 'px')
     .text('Fiscal Quarter')
-    .attr('x', w / 2)
-    .attr('y', h - 40);
+    .attr('x', width / 2 - 45)
+    .attr('y', height - 40);
 
   // Add data bars to the chart
   graphSVG
@@ -128,7 +147,7 @@ function renderGraph(rawData) {
     .attr('data-index', (d, i) => i)
     .attr('x', (d, i) => calculateXPos(d, i, xscale))
     .attr('y', (d) => yscale(d[1]))
-    .attr('width', (w - 2 * padding) / gdpData.length)
+    .attr('width', (width - 2 * padding) / gdpData.length)
     .attr('height', (d) => yscale(gdpMax - d[1]))
     .attr('fill', 'green')
     .attr('stroke', 'white')
