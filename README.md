@@ -13,6 +13,10 @@ This project was built using the following technologies:
 - **[D3](https://d3js.org/)** to generate the SVG bar chart from the API data
 - **[Bootstrap](https://getbootstrap.com/)** for styling with some custom **CSS**
 
+U.S. GDP Data sourced from **[Federal Reserve Economic Data (FRED)](https://fred.stlouisfed.org/)**
+
+Chart Data can be found [here](http://research.stlouisfed.org/fred2/data/GDP.txt).
+
 ### Project Requirements:
 
 - **User Story #1:** My chart should have a title with a corresponding `id="title"`.
@@ -58,3 +62,5 @@ Going beyond the required User Stories outlined above, the bar chart generated b
 - `styles.css` - custom styles for the app.
 
 - `data.json` - backup copy of the API data. In the case where the data is not available from the online resource, the data is loaded from this file instead.
+
+###
