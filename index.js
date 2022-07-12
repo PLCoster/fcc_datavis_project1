@@ -62,8 +62,8 @@ function renderGraph(rawData) {
   console.log(graphContainer.node().getBoundingClientRect()); // Get element width and height
 
   const w = 1000;
-  const h = 700;
-  const padding = 30;
+  const h = 600;
+  const padding = 80;
 
   const graphSVG = graphContainer
     .append('svg')
@@ -81,11 +81,26 @@ function renderGraph(rawData) {
   const xscale = d3
     .scaleLinear()
     .domain([yearMin, yearMax])
-    .range([padding, w - padding]);
+    .range([padding, w]);
   const yscale = d3
     .scaleLinear()
     .domain([0, gdpMax])
-    .range([h - padding, padding]);
+    .range([h - padding, 0]);
+
+  //Add axes to the chart:
+  const xAxis = d3.axisBottom(xscale).tickFormat((x) => x.toString());
+  graphSVG
+    .append('g')
+    .attr('transform', 'translate(0, ' + (h - padding) + ')')
+    .attr('id', 'x-axis')
+    .call(xAxis);
+
+  const yAxis = d3.axisLeft(yscale);
+  graphSVG
+    .append('g')
+    .attr('transform', 'translate(' + padding + ', 0)')
+    .attr('id', 'y-axis')
+    .call(yAxis);
 
   // Add data bars to the chart
   graphSVG
@@ -98,7 +113,7 @@ function renderGraph(rawData) {
     .attr('data-gdp', (d) => d[1])
     .attr('data-index', (d, i) => i)
     .attr('x', (d, i) => calculateXPos(d, i, xscale))
-    .attr('y', (d) => yscale(d[1]) - padding)
+    .attr('y', (d) => yscale(d[1]))
     .attr('width', (w - 2 * padding) / gdpData.length)
     .attr('height', (d) => yscale(gdpMax - d[1]))
     .attr('fill', 'green')
