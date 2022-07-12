@@ -53,7 +53,7 @@ Going beyond the required User Stories outlined above, the bar chart generated b
 
 - `index.js` - controls the behaviour of the app. After all DOM content has loaded it loads the bar chart data (via online resource or from `data.json` if that fails). Once the data is loaded, the current width of the `.graph-container` element is determined and then the `renderGraph` function is called to build a bar chart of the desired width and add it to the document. In addition the `window.onresize` event listener is set up, to rerender the bar chart if the browser window size changes.
 
-Scaling and positioning of elements in the bar chart is aided using D3's `scaleLinear()` functionality. An on:hover tooltip is also added to the graph - it is a small div element which has its position, visibility and contents adjusted dynamically based on the current mouse position, using the `mouseover` event on bar chart elements to trigger these changes.
+  Scaling and positioning of elements in the bar chart is aided using D3's `scaleLinear()` functionality. An on:hover tooltip is also added to the graph - it is a small div element which has its position, visibility and contents adjusted dynamically based on the current mouse position, using the `mouseover` event on bar chart elements to trigger these changes.
 
 - `styles.css` - custom styles for the app.
 
