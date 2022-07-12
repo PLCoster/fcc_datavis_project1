@@ -27,7 +27,6 @@ function dataLoaded(e, backup) {
       .getBoundingClientRect();
     renderGraph(this.responseText, width);
     window.addEventListener('resize', (e) => {
-      console.log('WINDOW RESIZED: ', window);
       const { width } = d3
         .select('#graph-container')
         .node()
@@ -51,7 +50,7 @@ function calculateXPos(d, i, xscale) {
   return xscale(parseInt(d[0].slice(0, 4)) + 0.25 * (i % 4));
 }
 
-// Main function to build interactive graph
+// Main function to build interactive graph from API data, given width available for graph
 function renderGraph(rawData, width) {
   const graphContainer = d3.select('#graph-container');
   graphContainer.html(''); // Remove 'Loading...' message or any previous graph svg
@@ -72,9 +71,10 @@ function renderGraph(rawData, width) {
     .attr('id', 'title')
     .text('US Quarterly GDP 1947-2015');
 
-  width = Math.max(width, 936);
+  width = Math.max(width, 720);
   const height = 0.6 * width;
-  const padding = 80;
+  const paddingLarge = 80;
+  const paddingRight = 20;
 
   const graphSVG = graphContainer
     .append('svg')
@@ -98,24 +98,25 @@ function renderGraph(rawData, width) {
   const xscale = d3
     .scaleLinear()
     .domain([yearMin, yearMax])
-    .range([padding, width - padding]);
+    .range([paddingLarge, width - paddingRight]);
+
   const yscale = d3
     .scaleLinear()
     .domain([0, gdpMax])
-    .range([height - padding, 0]);
+    .range([height - paddingLarge, 0]);
 
   // Add axes to the chart:
   const xAxis = d3.axisBottom(xscale).tickFormat((x) => x.toString());
   graphSVG
     .append('g')
-    .attr('transform', 'translate(0, ' + (height - padding) + ')')
+    .attr('transform', 'translate(0, ' + (height - paddingLarge) + ')')
     .attr('id', 'x-axis')
     .call(xAxis);
 
   const yAxis = d3.axisLeft(yscale);
   graphSVG
     .append('g')
-    .attr('transform', 'translate(' + padding + ', 0)')
+    .attr('transform', 'translate(' + paddingLarge + ', 0)')
     .attr('id', 'y-axis')
     .call(yAxis);
 
@@ -147,7 +148,7 @@ function renderGraph(rawData, width) {
     .attr('data-index', (d, i) => i)
     .attr('x', (d, i) => calculateXPos(d, i, xscale))
     .attr('y', (d) => yscale(d[1]))
-    .attr('width', (width - 2 * padding) / gdpData.length)
+    .attr('width', (width - 2 * paddingLarge) / gdpData.length)
     .attr('height', (d) => yscale(gdpMax - d[1]))
     .attr('fill', 'green')
     .attr('stroke', 'white')
@@ -164,11 +165,7 @@ function renderGraph(rawData, width) {
     .selectAll('rect')
     .data(gdpData)
     .on('mouseover', function (event, d) {
-      // mouseover event takes in the mouse event and the data for the
-      console.log('Arg1: ', event);
-      console.log('Arg2: ', d);
-      console.log('Arg2: ', event.clientX);
-      console.log('this: ', this);
+      // mouseover event takes in the mouse event and the data for the element under the mouse
       tooltip
         .html('')
         .attr('data-date', d[0])
@@ -195,7 +192,7 @@ function renderGraph(rawData, width) {
     });
 }
 
-// Request graph data after DOM loads
+// Request graph data from API after DOM loads
 document.addEventListener('DOMContentLoaded', (e) => {
   requestData(
     'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json',

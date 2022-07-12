@@ -32,21 +32,15 @@ MAIN
 */
 main {
   background-color: white;
-  min-width: 936px;
 }
 
 #graph-container {
   margin: 5vh 0;
-  padding: 12px 0;
-
+  padding: 12px 0 12px 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-.graph {
-  min-width: 936px;
 }
 
 .bar:hover {
