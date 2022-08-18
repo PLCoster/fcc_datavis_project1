@@ -30,17 +30,22 @@ NAVBAR
 /*
 MAIN
 */
-main {
-  background-color: white;
+main.container-md {
+  margin: 2vh auto;
+  padding: 0;
 }
 
 #graph-container {
-  margin: 5vh 0;
-  padding: 12px 0 12px 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 1s;
+}
+
+#svg-container {
+  width: 100%;
+  overflow-x: auto;
 }
 
 .bar:hover {

@@ -17,7 +17,7 @@ function dataLoaded(e, backup) {
     // If both attempts to load data have failed, display error message
     transferFailed(
       e,
-      'Error when trying to load data from API and file, please try again.'
+      'Error when trying to load data from API and file, please try again.',
     );
   } else {
     // Data loaded, render graph and set up event listener to re-render on window resize
@@ -39,7 +39,7 @@ function dataLoaded(e, backup) {
 // Generate an error message where graph should display
 function transferFailed(
   e,
-  message = 'An error occured when trying to load data'
+  message = 'An error occurred when trying to load data',
 ) {
   const graphContainer = d3.select('#graph-container');
   graphContainer.text(message);
@@ -61,7 +61,7 @@ function renderGraph(rawData, width) {
   } catch (err) {
     transferFailed(
       null,
-      'Error occured when trying to parse JSON data, please try again.'
+      'Error occurred when trying to parse JSON data, please try again.',
     );
     return;
   }
@@ -71,12 +71,16 @@ function renderGraph(rawData, width) {
     .attr('id', 'title')
     .text('US Quarterly GDP 1947-2015');
 
-  width = Math.max(width, 720);
-  const height = 0.6 * width;
+  width = Math.max(width, 540);
+  const height = Math.min(0.6 * width, 740);
   const paddingLarge = 80;
   const paddingRight = 20;
 
-  const graphSVG = graphContainer
+  const axisFontSize = Math.max(Math.round(0.015 * width), 10);
+
+  const svgContainer = graphContainer.append('div').attr('id', 'svg-container');
+
+  const graphSVG = svgContainer
     .append('svg')
     .attr('class', 'graph')
     .attr('width', width)
@@ -85,7 +89,7 @@ function renderGraph(rawData, width) {
   graphContainer.append('label').html(
     `Data source: <a href= http://research.stlouisfed.org/fred2/data/GDP.txt> Federal Reserve Economic Data</a>
     <br>
-    For more information see <a href= http://www.bea.gov/national/pdf/nipaguid.pdf> here </a>`
+    For more information see <a href= http://www.bea.gov/national/pdf/nipaguid.pdf> here </a>`,
   );
 
   // Create scales for x and y axes of graph:
@@ -127,11 +131,11 @@ function renderGraph(rawData, width) {
     .text('GDP ( Billions of Dollars - Seasonally Adjusted)')
     .attr('x', -yscale(0) + height / 6)
     .attr('y', 30)
-    .style('font-size', Math.round(0.015 * width) + 'px');
+    .style('font-size', axisFontSize + 'px');
 
   graphSVG
     .append('text')
-    .style('font-size', Math.round(0.015 * width) + 'px')
+    .style('font-size', axisFontSize + 'px')
     .text('Fiscal Quarter')
     .attr('x', width / 2 - 45)
     .attr('y', height - 40);
@@ -171,14 +175,14 @@ function renderGraph(rawData, width) {
         .attr('data-date', d[0])
         .attr('data-gdp', d[1])
         .style('visibility', 'visible')
-        .style('top', event.layerY - 20 + 'px');
+        .style('top', event.clientY - 80 + 'px');
 
       // Position tooltip to the left or right of the cursor depending on position
       const i = parseInt(this.getAttribute('data-index'));
       if (i < gdpData.length / 2) {
-        tooltip.style('left', event.layerX + 20 + 'px');
+        tooltip.style('left', event.clientX + 20 + 'px');
       } else {
-        tooltip.style('left', event.layerX - 150 + 'px');
+        tooltip.style('left', event.clientX - 150 + 'px');
       }
 
       // Add Year and Quarter info to Tooltip
@@ -190,12 +194,15 @@ function renderGraph(rawData, width) {
     .on('mouseout', function () {
       tooltip.style('visibility', 'hidden');
     });
+
+  // Make graph container visible after building graph:
+  graphContainer.style('opacity', 1);
 }
 
 // Request graph data from API after DOM loads
 document.addEventListener('DOMContentLoaded', (e) => {
   requestData(
     'https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json',
-    false
+    false,
   );
 });
