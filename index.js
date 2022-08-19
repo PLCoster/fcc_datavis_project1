@@ -175,14 +175,14 @@ function renderGraph(rawData, width) {
         .attr('data-date', d[0])
         .attr('data-gdp', d[1])
         .style('visibility', 'visible')
-        .style('top', event.clientY - 80 + 'px');
+        .style('top', event.pageY - 80 + 'px');
 
       // Position tooltip to the left or right of the cursor depending on position
       const i = parseInt(this.getAttribute('data-index'));
       if (i < gdpData.length / 2) {
-        tooltip.style('left', event.clientX + 20 + 'px');
+        tooltip.style('left', event.pageX + 20 + 'px');
       } else {
-        tooltip.style('left', event.clientX - 150 + 'px');
+        tooltip.style('left', event.pageX - 150 + 'px');
       }
 
       // Add Year and Quarter info to Tooltip
